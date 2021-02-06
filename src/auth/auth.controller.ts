@@ -20,7 +20,9 @@ export class AuthController {
 
     @Post('signin')
     @UsePipes(ValidationPipe)
-    signIn(@Body() authCredentialDto: AuthCredentialsDto): Promise<void> {
+    signIn(
+        @Body() authCredentialDto: AuthCredentialsDto,
+    ): Promise<{ accessToken: string }> {
         return this.authService.signIn(authCredentialDto);
     }
 }
