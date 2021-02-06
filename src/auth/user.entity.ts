@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import {
     BaseEntity,
     Column,
@@ -20,4 +21,10 @@ export class User extends BaseEntity {
 
     @Column()
     salt: string;
+
+    async isPasswordValid(password: string): Promise<boolean> {
+        const hash = await bcrypt.hash(password, this.salt);
+
+        return this.password === hash;
+    }
 }
