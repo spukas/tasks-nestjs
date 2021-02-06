@@ -7,18 +7,23 @@ import { Task } from './task.entity';
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
-    async getAllTasks(filterTasksDto: FilterTasksDto): Promise<Task[]> {
+    async getAllTasks(
+        filterTasksDto: FilterTasksDto,
+        user: User,
+    ): Promise<Task[]> {
         const { status, search } = filterTasksDto;
 
         const tasks = await this.createQueryBuilder('task');
 
+        tasks.where('task.userId = :userId', { userId: user.id });
+
         if (status)
-            tasks.where('task.status = :status', {
+            tasks.andWhere('task.status = :status', {
                 status: status.toUpperCase(),
             });
 
         if (search)
-            tasks.where(
+            tasks.andWhere(
                 'task.title ILIKE :search OR task.description ILIKE :search',
                 { search: `%${search}%` },
             );
