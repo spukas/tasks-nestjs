@@ -1,21 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as config from 'config';
 
-@Injectable()
-export class TypeOrmConfigService implements TypeOrmOptionsFactory {
-    constructor(private configService: ConfigService) {}
+const dbConfig: any = config.get('db');
 
-    createTypeOrmOptions(): TypeOrmModuleOptions {
-        return {
-            type: 'postgres',
-            host: this.configService.get<string>('DB_HOST', 'localhost'),
-            port: this.configService.get<number>('DB_PORT', 5432),
-            username: this.configService.get<string>('DB_USERNAME', 'postgres'),
-            password: this.configService.get<string>('DB_PASSWORD', 'postgres'),
-            database: this.configService.get<string>('DB_DATABASE', 'tasks'),
-            entities: [__dirname + '/../**/*.entity.{js,ts}'],
-            synchronize: true,
-        };
-    }
-}
+export const typeOrmConfig: TypeOrmModuleOptions = {
+    type: dbConfig.type,
+    host: process.env.RDS_HOSTNAME || dbConfig.host,
+    port: process.env.RDS_PORT || dbConfig.port,
+    username: process.env.RDS_USERNAME || dbConfig.username,
+    password: process.env.RDS_PASSWORD || dbConfig.password,
+    database: process.env.RDS_DB_NAME || dbConfig.database,
+    entities: [__dirname + '/../**/*.entity.{js,ts}'],
+    synchronize: process.env.TYPEORM_SYNC || dbConfig.synchronize,
+};
