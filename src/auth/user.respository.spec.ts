@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
+import * as bcrypt from 'bcrypt';
 
 const mockAuthCredentialsDto: AuthCredentialsDto = {
     username: 'TestUser',
@@ -33,9 +34,14 @@ describe('UserRepository', () => {
         });
 
         test('should create and save user', async () => {
+            jest.spyOn(bcrypt, 'hash').mockImplementation(() =>
+                Promise.resolve('testHash'),
+            );
+            expect(bcrypt.hash).not.toHaveBeenCalled();
             await userRepository.signUp(mockAuthCredentialsDto);
             expect(userRepository.create).toHaveBeenCalled();
             expect(user.save).toHaveBeenCalled();
+            expect(user.password).toEqual('testHash');
         });
 
         test('should throw conflict error if username exsist', async () => {
